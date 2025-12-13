@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.user.scheduler</string>
+    
+    <key>ProgramArguments</key>
+    <array>
+        <string>/Users/tr0n/Documents/scheduler/target/release/scheduler</string>
+        <string>-a</string>
+    </array>
+    
+    <key>WorkingDirectory</key>
+    <string>/Users/tr0n/Documents/scheduler</string>
+    
+    <!-- Run every 5 minutes (300s) - change to 1 for every second, 3600 for every hour -->
+    <key>StartInterval</key>
+    <integer>300</integer>
+    
+    <key>StandardOutPath</key>
+    <string>/Users/tr0n/Library/Logs/scheduler.log</string>
+    <key>StandardErrorPath</key>
+    <string>/Users/tr0n/Library/Logs/scheduler-error.log</string>
+    
+    <key>RunAtLoad</key>
+    <false/>
+</dict>
+</plist>

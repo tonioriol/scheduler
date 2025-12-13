@@ -1,0 +1,13 @@
+# Schedule Configuration
+# The scheduler checks this file periodically and runs tasks that are due
+
+[[schedule]]
+name = "nucleus-backup"
+command = "rsync --archive --verbose --compress --update /Users/tr0n/nucleus/ /Users/tr0n/Documents/nucleus_bkp/nucleus_link_curr_bkp/"
+time_window_hours = 24
+
+# Add more scheduled tasks as needed:
+# [[schedule]]
+# name = "another-task"
+# command = "rsync -av /source/ /destination/"
+# time_window_hours = 48
