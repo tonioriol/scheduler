@@ -1,0 +1,12 @@
+# Schedule Configuration Example
+# Copy this file to 'schedule.toml' and customize for your needs
+
+[[schedule]]
+name = "daily-backup"
+command = "rsync -av /source/ /destination/"
+time_window_hours = 24
+
+[[schedule]]
+name = "weekly-task"
+command = "/path/to/script.sh"
+time_window_hours = 168

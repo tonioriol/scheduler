@@ -30,11 +30,9 @@ scheduler program    → Checks which are due, runs them
 # 1. Build
 cargo build --release
 
-# 2. Edit schedule.toml
-[[schedule]]
-name = "my-task"
-command = "rsync -av /source/ /dest/"
-time_window_hours = 24
+# 2. Create your schedule config
+cp schedule.toml.example schedule.toml
+# Edit schedule.toml with your tasks
 
 # 3. Install (uses -a for auto mode)
 cp com.user.scheduler.plist ~/Library/LaunchAgents/

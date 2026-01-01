@@ -4,6 +4,9 @@
 # State file (contains runtime data)
 .state.json
 
+# User-specific schedule configuration
+schedule.toml
+
 # IDE files
 .vscode/
 .idea/
