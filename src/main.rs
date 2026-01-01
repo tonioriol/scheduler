@@ -21,6 +21,14 @@ struct State {
     last_run: HashMap<String, u64>,
 }
 
+fn format_timestamp(unix_time: u64) -> String {
+    use std::time::{Duration, SystemTime};
+    let dt = SystemTime::UNIX_EPOCH + Duration::from_secs(unix_time);
+    chrono::DateTime::<chrono::Local>::from(dt)
+        .format("%Y-%m-%d %H:%M:%S")
+        .to_string()
+}
+
 fn main() {
     let text = fs::read_to_string("schedule.toml").expect("Can't read schedule.toml");
     let config: Config = toml::from_str(&text).expect("Invalid TOML");
@@ -37,28 +45,53 @@ fn main() {
 
     if is_auto {
         // Auto mode: run due tasks
+        println!("[{}] Scheduler check", format_timestamp(now));
+        
+        let mut tasks_run = 0;
         for schedule in &config.schedule {
             let window_seconds = schedule.time_window_hours * 3600;
             let should_run = match state.last_run.get(&schedule.name) {
-                None => true,
-                Some(&last_run) => (now - last_run) >= window_seconds,
+                None => {
+                    println!("  - {}: never run, executing now", schedule.name);
+                    true
+                }
+                Some(&last_run) => {
+                    let elapsed = now - last_run;
+                    if elapsed >= window_seconds {
+                        println!("  - {}: last run {}h ago (>{}h window), executing",
+                                schedule.name, elapsed / 3600, schedule.time_window_hours);
+                        true
+                    } else {
+                        let remaining = (window_seconds - elapsed) / 3600;
+                        println!("  - {}: not due yet ({}h remaining)", schedule.name, remaining);
+                        false
+                    }
+                }
             };
             
             if should_run {
-                println!("Running: {}", schedule.name);
-                let success = Command::new("sh")
+                let result = Command::new("sh")
                     .arg("-c")
                     .arg(&schedule.command)
-                    .status()
-                    .map(|s| s.success())
-                    .unwrap_or(false);
+                    .status();
                 
-                if success {
-                    println!("✓");
-                    state.last_run.insert(schedule.name.clone(), now);
+                match result {
+                    Ok(status) if status.success() => {
+                        println!("  ✓ {}: completed successfully", schedule.name);
+                        state.last_run.insert(schedule.name.clone(), now);
+                        tasks_run += 1;
+                    }
+                    Ok(status) => {
+                        println!("  ✗ {}: failed with exit code {:?}", schedule.name, status.code());
+                    }
+                    Err(e) => {
+                        println!("  ✗ {}: error executing command: {}", schedule.name, e);
+                    }
                 }
             }
         }
+        
+        println!("[{}] Check complete: {} task(s) executed\n", format_timestamp(now), tasks_run);
     } else {
         // Interactive mode: list and pick
         for (i, schedule) in config.schedule.iter().enumerate() {
